@@ -1,70 +1,160 @@
-# Getting Started with Create React App
+# Contact App
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+This project is a full-stack application that includes a React front-end and a JSON Server API for managing contacts. It allows users to view, add, and manage contacts through a simple web interface.
 
-## Available Scripts
+## Table of Contents
 
-In the project directory, you can run:
+- [Project Structure](#project-structure)
+- [Features](#features)
+- [Installation](#installation)
+- [Running Locally](#running-locally)
+- [Deployment](#deployment)
+- [Technologies Used](#technologies-used)
+- [Contributing](#contributing)
+- [License](#license)
 
-### `npm start`
+## Project Structure
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+```
+.
+├── contact-app
+│   ├── node_modules
+│   ├── public
+│   │   ├── favicon.ico
+│   │   ├── index.html
+│   ├── src
+│   │   ├── api
+│   │   ├── components
+│   │   ├── images
+│   │   ├── index.js
+│   ├── .gitignore
+│   ├── package.json
+│   ├── package-lock.json
+│   └── README.md
+├── server-api
+│   ├── node_modules
+│   ├── db.json
+│   ├── package.json
+│   ├── package-lock.json
+├── .gitignore
+└── README.md
+```
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+## Features
 
-### `npm test`
+- **Add Contacts:** Allows users to add new contacts with full name, email, and phone number.
+- **View Contacts:** Displays a list of all contacts.
+- **Edit and Delete Contacts:** Users can update or delete existing contacts.
+- **Simple REST API:** A JSON Server API to handle contact data storage and retrieval.
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+## Installation
 
-### `npm run build`
+1. **Clone the Repository**
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+   ```bash
+   git clone https://github.com/yourusername/contact-app.git
+   cd contact-app
+   ```
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+2. **Install Dependencies**
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+   Navigate to both the front-end and server directories to install necessary packages:
 
-### `npm run eject`
+   ```bash
+   cd contact-app
+   npm install
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+   cd ../server-api
+   npm install
+   ```
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+## Running Locally
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+To run the project locally, you need to start both the React app and the JSON Server.
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+1. **Build the React App**
 
-## Learn More
+   ```bash
+   cd contact-app
+   npm run build
+   ```
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+2. **Start JSON Server**
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+   In another terminal, run:
 
-### Code Splitting
+   ```bash
+   cd server-api
+   npx json-server --watch db.json --port 5000
+   ```
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+3. **Serve the React App**
 
-### Analyzing the Bundle Size
+   Go back to the `contact-app` directory and run:
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+   ```bash
+   npx serve -s build
+   ```
 
-### Making a Progressive Web App
+The React app will be served at `http://localhost:3000`, and the JSON API will be available at `http://localhost:5000`.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+## Deployment
 
-### Advanced Configuration
+### Heroku Deployment
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+1. **Set Up an Express Server**
 
-### Deployment
+   Create a `server.js` in the root directory to serve both React and JSON API.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
+   ```javascript
+   const express = require("express");
+   const path = require("path");
+   const jsonServer = require("json-server");
 
-### `npm run build` fails to minify
+   const app = express();
+   const PORT = process.env.PORT || 5000;
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+   app.use(express.static(path.join(__dirname, "contact-app", "build")));
+   const router = jsonServer.router(path.join(__dirname, "server-api", "db.json"));
+   const middlewares = jsonServer.defaults();
+   app.use("/api", middlewares, router);
+
+   app.get("*", (req, res) => {
+     res.sendFile(path.join(__dirname, "contact-app", "build", "index.html"));
+   });
+
+   app.listen(PORT, () => {
+     console.log(`Server is running on port ${PORT}`);
+   });
+   ```
+
+2. **Push to Heroku**
+
+   ```bash
+   git init
+   heroku create your-app-name
+   git add .
+   git commit -m "Deploying app"
+   git push heroku main
+   ```
+
+## Technologies Used
+
+- **React**: JavaScript library for building user interfaces.
+- **JSON Server**: Provides a full fake REST API.
+
+## Contributing
+
+Contributions are welcome! Please fork the repository and use a feature branch. Pull requests are encouraged.
+
+1. Fork it
+2. Create your feature branch (`git checkout -b feature/fooBar`)
+3. Commit your changes (`git commit -am 'Add some fooBar'`)
+4. Push to the branch (`git push origin feature/fooBar`)
+5. Create a new Pull Request
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+---
